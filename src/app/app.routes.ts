@@ -12,8 +12,10 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         children: [
             { path: 'usuarios', loadComponent: () => import('./pages/usuarios/usuarios.component').then(m => m.UsuariosComponent) },
+            { path: 'productos', loadComponent: () => import('./pages/productos/productos.component').then(m => m.ProductosComponent) },
+
             // aquí agregarás clientes, productos, etc.
-            { path: '', redirectTo: 'usuarios', pathMatch: 'full' }
+            { path: '', redirectTo: 'productos', pathMatch: 'full' }
         ]
     },
     {

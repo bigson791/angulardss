@@ -6,15 +6,17 @@ import { Injectable } from '@angular/core';
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'userToken';
+  private readonly nombres = 'userName';
 
   constructor(private http: HttpClient) {}
 
   loginUser(nombreUsuario: string, contrasena: string) {
-    return this.http.post<{ token: string }>('http://localhost:3000/api/login', { nombreUsuario, contrasena });
+    return this.http.post<{ token: string, nombre: string }>('http://localhost:3000/api/login', { nombreUsuario, contrasena });
   }
 
-  login(token: string) {
+  login(token: string, name: string ) {
     localStorage.setItem(this.TOKEN_KEY, token);
+    sessionStorage.setItem(this.nombres, name); // Guardar el nombre de usuario en sessionStorage
   }
 
   logout() {

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service'; // Asegúrate de importar tu servicio de autenticación
 
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -10,6 +11,7 @@ import { AuthService } from '../../services/auth.service'; // Asegúrate de impo
   styleUrls: ['./login.component.scss'],
   imports: [FormsModule] // no olvides importar FormsModule para ngModel
 })
+
 export class LoginComponent {
   username = '';
   password = '';
@@ -21,7 +23,7 @@ export class LoginComponent {
     // Por ahora, ejemplo simple:
     this.auth.loginUser(this.username, this.password).subscribe({
       next: (response) => {
-        this.auth.login(response.token); // Guarda el token en el localStorage
+        this.auth.login(response.token, response.nombre); // Guarda el token en el localStorage
         this.router.navigate(['/usuarios']); // Redirige al dashboard o usuarios
       },
       error: (error) => {
