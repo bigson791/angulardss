@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { TableModule } from 'primeng/table';
 
 interface Producto {
   codigo: string;
@@ -20,7 +24,7 @@ interface Proveedor {
 @Component({
   selector: 'app-productos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, DropdownModule, TableModule],
   templateUrl: './productos.component.html',
   styleUrl: './productos.component.scss'
 })
@@ -91,6 +95,18 @@ export class ProductosComponent implements OnInit {
   guardarProducto() {
     this.productos.push({ ...this.nuevoProducto });
     this.cerrarModal();
+  }
+
+  editarProducto(producto: Producto, index: number) {
+    // Lógica para editar (puedes reutilizar el modal de añadir)
+    this.nuevoProducto = { ...producto };
+    this.mostrarModal = true;
+    // Guarda el índice si quieres actualizar el producto al guardar
+  }
+
+  eliminarProducto(index: number) {
+    // Elimina el producto del array (o haz una petición DELETE al backend)
+    this.productos.splice(index, 1);
   }
 
 }
