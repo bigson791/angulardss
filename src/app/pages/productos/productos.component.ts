@@ -6,8 +6,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
+import { NgForm } from '@angular/forms';
+import Swal from 'sweetalert2';
+
 
 interface Producto {
+  _id?: string; // opcional si el producto ya existe
   codigo: string;
   nombre: string;
   precioCompra: number;
@@ -90,23 +94,80 @@ export class ProductosComponent implements OnInit {
 
   cerrarModal() {
     this.mostrarModal = false;
+      this.idEditando = null;
   }
 
-  guardarProducto() {
-    this.productos.push({ ...this.nuevoProducto });
-    this.cerrarModal();
-  }
+  guardarProducto(form: NgForm) {
+    if (form.invalid) {
+      Swal.fire('Formulario Inválido', 'Por favor, completa todos los campos requeridos.', 'warning');
+      return;
+    }
+    const data = {
+      ...this.nuevoProducto,
+      fechaIngreso: new Date().toISOString()
+    };
 
+    if (this.idEditando) {
+      this.http.put(`http://localhost:3000/api/productos/${this.idEditando}`, data)
+        .subscribe({
+          next: () => {
+            Swal.fire('Éxito', 'Producto actualizado correctamente.', 'success');
+            this.cargarProductos();
+            this.cerrarModal();
+            this.idEditando = null;
+          },
+          error: err => {
+          
+            Swal.fire('Error', 'No se pudo actualizar el producto.', 'error');
+            console.error('Error actualizando:', err);
+          }
+        });
+    } else {
+      this.http.post('http://localhost:3000/api/productos', data)
+        .subscribe({
+          next: () => {
+            Swal.fire('Éxito', 'Producto guardado correctamente.', 'success');
+            this.cargarProductos();
+            this.cerrarModal();
+          },
+          error: err => {
+            console.error('Error guardando:', err);
+          }
+        });
+    }
+  }
+  idEditando: string | null = null;
   editarProducto(producto: Producto, index: number) {
-    // Lógica para editar (puedes reutilizar el modal de añadir)
     this.nuevoProducto = { ...producto };
+    this.idEditando = producto._id || null;
     this.mostrarModal = true;
-    // Guarda el índice si quieres actualizar el producto al guardar
+    this.proveedoresFiltrados = this.proveedores;
+    this.busquedaProveedor = '';
   }
 
-  eliminarProducto(index: number) {
-    // Elimina el producto del array (o haz una petición DELETE al backend)
-    this.productos.splice(index, 1);
+  eliminarProducto(producto: Producto) {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: `¿Deseas eliminar el producto "${producto.nombre}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.http.delete(`http://localhost:3000/api/productos/${producto._id}`)
+        .subscribe({
+          next: () => {
+            Swal.fire('Eliminado', 'El producto ha sido eliminado.', 'success');
+            this.cargarProductos();
+          },
+          error: err => {
+            console.error('Error al eliminar:', err);
+            Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
+          }
+        });
+    }
+  });
   }
 
 }
