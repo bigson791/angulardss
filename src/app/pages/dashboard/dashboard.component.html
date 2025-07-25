@@ -1,0 +1,27 @@
+<div class="container mt-4">
+  <h2>Resumen de Ventas</h2>
+
+  <div style="max-width: 800px; margin: auto;">
+    <canvas baseChart
+      [data]="barChartData"
+      [type]="barChartType">
+    </canvas>
+  </div>
+
+  <div class="row mt-5">
+    <div class="col-md-6">
+      <h4>Canal con más ventas</h4>
+      <canvas baseChart
+        [data]="canalChartData"
+        [type]="canalChartType">
+      </canvas>
+    </div>
+    <div class="col-md-6">
+      <h4>Método de pago más usado</h4>
+      <canvas baseChart
+        [data]="metodoChartData"
+        [type]="metodoChartType">
+      </canvas>
+    </div>
+  </div>
+</div>

@@ -14,4 +14,12 @@ export class UsuarioService {
   obtenerTodos() {
     return this.http.get(this.api);
   }
+
+  actualizarUsuario(id: string, usuario: any) {
+    return this.http.put(`${this.api}/${id}`, usuario);
+  }
+
+  eliminarUsuario(id: string) {
+    return this.http.delete(`${this.api}/${id}`);
+  }
 }

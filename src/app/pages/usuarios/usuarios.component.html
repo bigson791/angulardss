@@ -1,1 +1,80 @@
-<p>usuarios works!</p>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Usuarios</h2>
+        <button class="btn btn-success" (click)="abrirModal()"><i class="fas fa-plus"></i> Añadir nuevo</button>
+    </div>
+
+    <p-table [value]="productos" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Nombre Usuario</th>
+                <th>Correo</th>
+                <th>Telefono</th>
+                <th>Tipo Usuario</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-producto let-prod let-i="rowIndex">
+            <tr>
+                <td>{{ producto.codigo }}</td>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.precioCompra }}</td>
+                <td>{{ producto.precioVenta }}</td>
+                <td>{{ producto.fechaCompra | date }}</td>
+                <td>{{ producto.proveedor }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm me-2" (click)="editarProducto(producto,i)"><i
+                            class="fas fa-pencil-alt"></i> Editar</button>
+                    <button class="btn btn-danger btn-sm" (click)="eliminarProducto(producto)"><i
+                            class="fas fa-trash-alt"></i>Eliminar</button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+
+<!-- Modal para añadir producto -->
+<div *ngIf="mostrarModal" class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.1);">
+    <div class="modal-dialog">
+        <div class="modal-content p-3">
+            <h5><i class="fas fa-user-plus"></i> Añadir Usuario</h5>
+            <form #form="ngForm" (ngSubmit)="guardarProducto(form)">
+                <div class="mb-2">
+                    <input class="form-control" placeholder="Código" [(ngModel)]="nuevoProducto.codigo" name="codigo"
+                        required>
+                </div>
+                <div class="mb-2">
+                    <input class="form-control" placeholder="Nombre" [(ngModel)]="nuevoProducto.nombre" name="nombre"
+                        required>
+                </div>
+                <div class="mb-2">
+                    <input type="number" class="form-control" placeholder="Precio Compra"
+                        [(ngModel)]="nuevoProducto.precioCompra" name="precioCompra" required>
+                </div>
+                <div class="mb-2">
+                    <input type="number" class="form-control" placeholder="Precio Venta"
+                        [(ngModel)]="nuevoProducto.precioVenta" name="precioVenta" required>
+                </div>
+                <div class="mb-2">
+                    <input type="date" class="form-control" placeholder="Fecha Compra"
+                        [(ngModel)]="nuevoProducto.fechaCompra" name="fechaCompra" required>
+                </div>
+                <div class="mb-2">
+                    <select class="form-select" [(ngModel)]="nuevoProducto.proveedor" name="proveedor" required>
+                        <option *ngFor="let prov of proveedoresFiltrados" [value]="prov.nombre">{{ prov.nombre }}
+                        </option>
+                    </select>
+                    <input class="form-control mt-1" placeholder="Buscar proveedor..." [(ngModel)]="busquedaProveedor"
+                        (input)="filtrarProveedores()" name="busquedaProveedor">
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-secondary me-2" (click)="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

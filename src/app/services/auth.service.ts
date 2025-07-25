@@ -8,22 +8,24 @@ export class AuthService {
   private readonly TOKEN_KEY = 'userToken';
   private readonly nombres = 'userName';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   loginUser(nombreUsuario: string, contrasena: string) {
     return this.http.post<{ token: string, nombre: string }>('http://localhost:3000/api/login', { nombreUsuario, contrasena });
   }
 
-  login(token: string, name: string ) {
+  login(token: string, name: string) {
     localStorage.setItem(this.TOKEN_KEY, token);
-    sessionStorage.setItem(this.nombres, name); // Guardar el nombre de usuario en sessionStorage
+    sessionStorage.setItem(this.nombres, name);
   }
 
   logout() {
     localStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.nombres);
   }
 
   isLoggedIn(): boolean {
+    if (typeof window === 'undefined') return false; // evita usar localStorage en SSR
     return !!localStorage.getItem(this.TOKEN_KEY);
   }
 }

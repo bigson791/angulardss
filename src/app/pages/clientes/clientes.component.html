@@ -1,1 +1,77 @@
-<p>clientes works!</p>
+<div class="container mt-4">
+    <h2>Clientes</h2>
+    <button class="btn btn-success mb-3" (click)="abrirModal()">Agregar Cliente</button>
+
+    <p-table [value]="clientes">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>NIT</th>
+                <th>Total Pedidos</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-cliente>
+            <tr>
+                <td>{{ cliente.nombres }}</td>
+                <td>{{ cliente.apellidos }}</td>
+                <td>{{ cliente.telefono }}</td>
+                <td>{{ cliente.correo }}</td>
+                <td>{{ cliente.nit }}</td>
+                <td>{{ cliente.totalPedidos }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm me-2" (click)="editarCliente(cliente)"><i
+                            class="fas fa-pencil-alt"></i> Editar</button>
+                    <button class="btn btn-danger btn-sm" (click)="eliminarCliente(cliente)"><i
+                            class="fas fa-trash-alt"></i> Eliminar</button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Modal -->
+<div *ngIf="mostrarModal" class="modal d-block" style="background: rgba(0,0,0,0.2);">
+    <div class="modal-dialog">
+        <div class="modal-content p-3">
+            <h5>{{ editando ? 'Editar' : 'Agregar' }} Cliente</h5>
+            <form #form="ngForm" (ngSubmit)="guardarCliente(form)">
+                <div class="mb-2">
+                    <input [(ngModel)]="clienteNuevo.nombres" name="nombres" class="form-control" placeholder="Nombres"
+                        required>
+                </div>
+                <div class="mb-2">
+                    <input [(ngModel)]="clienteNuevo.apellidos" name="apellidos" class="form-control"
+                        placeholder="Apellidos" required>
+                </div>
+                <div class="mb-2">
+                    <input [(ngModel)]="clienteNuevo.direccion" name="direccion" class="form-control"
+                        placeholder="Dirección" required>
+                </div>
+                <div class="mb-2">
+                    <input [(ngModel)]="clienteNuevo.nit" name="nit" class="form-control" placeholder="NIT ó CF"
+                        required>
+                </div>
+                <div class="mb-2">
+                    <input [(ngModel)]="clienteNuevo.correo" type="email" email name="correo" class="form-control"
+                        placeholder="Correo" #correoRef="ngModel" required>
+                    <div *ngIf="correoRef.invalid && correoRef.touched" class="text-danger">
+                        Ingresa un correo válido.
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <input [(ngModel)]="clienteNuevo.telefono" type="number" name="telefono" class="form-control"
+                        required placeholder="Teléfono" max="999999999999" min="1000000">
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-secondary me-2" (click)="cerrarModal()"><i
+                            class="fas fa-times"></i> Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

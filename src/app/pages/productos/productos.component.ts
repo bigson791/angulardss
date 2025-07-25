@@ -94,7 +94,7 @@ export class ProductosComponent implements OnInit {
 
   cerrarModal() {
     this.mostrarModal = false;
-      this.idEditando = null;
+    this.idEditando = null;
   }
 
   guardarProducto(form: NgForm) {
@@ -117,7 +117,7 @@ export class ProductosComponent implements OnInit {
             this.idEditando = null;
           },
           error: err => {
-          
+
             Swal.fire('Error', 'No se pudo actualizar el producto.', 'error');
             console.error('Error actualizando:', err);
           }
@@ -146,28 +146,28 @@ export class ProductosComponent implements OnInit {
   }
 
   eliminarProducto(producto: Producto) {
-  Swal.fire({
-    title: '¿Estás seguro?',
-    text: `¿Deseas eliminar el producto "${producto.nombre}"?`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.http.delete(`http://localhost:3000/api/productos/${producto._id}`)
-        .subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'El producto ha sido eliminado.', 'success');
-            this.cargarProductos();
-          },
-          error: err => {
-            console.error('Error al eliminar:', err);
-            Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
-          }
-        });
-    }
-  });
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar el producto "${producto.nombre}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.http.delete(`http://localhost:3000/api/productos/${producto._id}`)
+          .subscribe({
+            next: () => {
+              Swal.fire('Eliminado', 'El producto ha sido eliminado.', 'success');
+              this.cargarProductos();
+            },
+            error: err => {
+              console.error('Error al eliminar:', err);
+              Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
+            }
+          });
+      }
+    });
   }
 
 }

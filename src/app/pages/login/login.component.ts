@@ -24,7 +24,7 @@ export class LoginComponent {
     this.auth.loginUser(this.username, this.password).subscribe({
       next: (response) => {
         this.auth.login(response.token, response.nombre); // Guarda el token en el localStorage
-        this.router.navigate(['/usuarios']); // Redirige al dashboard o usuarios
+        this.router.navigate(['/dashboard']); // Redirige al dashboard o usuarios
       },
       error: (error) => {
         console.error('Error de login:', error);
