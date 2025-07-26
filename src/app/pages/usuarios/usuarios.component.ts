@@ -1,95 +1,89 @@
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
-import { NgForm } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { UsuarioService } from '../../services/usuario.service';
 
-interface Producto {
-  _id?: string; // opcional si el producto ya existe
-  codigo: string;
-  nombre: string;
-  precioCompra: number;
-  precioVenta: number;
-  fechaCompra: string;
-  proveedor: string;
+interface Usuario {
+  _id?: string;
+  nombres: string;
+  apellidos: string;
+  nombreUsuario: string;
+  contrasena: string;
+  correo: string;
+  telefono: string;
+  tipoUsuario: string;
 }
 
-interface Proveedor {
-  _id: string;
+interface Rol {
   nombre: string;
 }
 
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, DropdownModule, TableModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    InputTextModule,
+    ButtonModule,
+    DropdownModule,
+    TableModule
+  ],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.scss'
 })
-
-export class UsuariosComponent {
-  productos: Producto[] = [];
-  proveedores: Proveedor[] = [];
-  proveedoresFiltrados: Proveedor[] = [];
-  busquedaProveedor = '';
+export class UsuariosComponent implements OnInit {
+  usuarios: Usuario[] = [];
+  roles: Rol[] = [];
   mostrarModal = false;
+  idEditando: string | null = null;
 
-  nuevoProducto: Producto = {
-    codigo: '',
-    nombre: '',
-    precioCompra: 0,
-    precioVenta: 0,
-    fechaCompra: '',
-    proveedor: ''
-  }
+  nuevoUsuario: Usuario = {
+    nombres: '',
+    apellidos: '',
+    nombreUsuario: '',
+    contrasena: '',
+    correo: '',
+    telefono: '',
+    tipoUsuario: ''
+  };
 
-  constructor(private http: HttpClient) { }
+  constructor(private usuarioService: UsuarioService) {}
+
   ngOnInit() {
-    this.cargarProductos();
-    this.cargarProveedores();
-    // Aquí podrías cargar productos desde tu API si tienes endpoint
+    this.cargarUsuarios();
+    this.cargarRoles();
   }
 
-  cargarProductos() {
-    this.http.get<Producto[]>('http://localhost:3000/api/productos')
-      .subscribe(data => {
-        this.productos = data;
-        console.log('Productos cargados:', this.productos);
-      });
+  cargarUsuarios() {
+    this.usuarioService.obtenerTodos().subscribe(data => {
+     this.usuarios = data;
+      //console.log('Usuarios cargados:', this.usuarios);
+      //console.log(data);
+    });
   }
 
-  cargarProveedores() {
-    this.http.get<Proveedor[]>('http://localhost:3000/api/proveedores')
-      .subscribe(data => {
-        this.proveedores = data;
-        this.proveedoresFiltrados = data;
-      });
-  }
-
-  filtrarProveedores() {
-    const filtro = this.busquedaProveedor.toLowerCase();
-    this.proveedoresFiltrados = this.proveedores.filter(p =>
-      p.nombre.toLowerCase().includes(filtro)
-    );
+  cargarRoles() {
+    this.roles = ['admin', 'ventas', 'compras', 'pagos'].map(role => ({ nombre: role }));
   }
 
   abrirModal() {
     this.mostrarModal = true;
-    this.nuevoProducto = {
-      codigo: '',
-      nombre: '',
-      precioCompra: 0,
-      precioVenta: 0,
-      fechaCompra: '',
-      proveedor: ''
+    this.nuevoUsuario = {
+      nombres: '',
+      apellidos: '',
+      nombreUsuario: '',
+      contrasena: '',
+      correo: '',
+      telefono: '',
+      tipoUsuario: ''
     };
-    this.busquedaProveedor = '';
-    this.proveedoresFiltrados = this.proveedores;
+    this.idEditando = null;
   }
 
   cerrarModal() {
@@ -97,73 +91,66 @@ export class UsuariosComponent {
     this.idEditando = null;
   }
 
-  guardarProducto(form: NgForm) {
+  guardarUsuario(form: NgForm) {
     if (form.invalid) {
       Swal.fire('Formulario Inválido', 'Por favor, completa todos los campos requeridos.', 'warning');
       return;
     }
-    const data = {
-      ...this.nuevoProducto,
-      fechaIngreso: new Date().toISOString()
-    };
 
     if (this.idEditando) {
-      this.http.put(`http://localhost:3000/api/productos/${this.idEditando}`, data)
+      this.usuarioService.actualizarUsuario(this.idEditando, this.nuevoUsuario)
         .subscribe({
           next: () => {
-            Swal.fire('Éxito', 'Producto actualizado correctamente.', 'success');
-            this.cargarProductos();
+            Swal.fire('Éxito', 'Usuario actualizado correctamente.', 'success');
+            this.cargarUsuarios();
             this.cerrarModal();
-            this.idEditando = null;
           },
           error: err => {
-
-            Swal.fire('Error', 'No se pudo actualizar el producto.', 'error');
-            console.error('Error actualizando:', err);
+            console.error('Error actualizando usuario:', err);
+            Swal.fire('Error', 'No se pudo actualizar el usuario.', 'error');
           }
         });
     } else {
-      this.http.post('http://localhost:3000/api/productos', data)
+      this.usuarioService.agregar(this.nuevoUsuario)
         .subscribe({
           next: () => {
-            Swal.fire('Éxito', 'Producto guardado correctamente.', 'success');
-            this.cargarProductos();
+            Swal.fire('Éxito', 'Usuario guardado correctamente.', 'success');
+            this.cargarUsuarios();
             this.cerrarModal();
           },
           error: err => {
-            console.error('Error guardando:', err);
+            console.error('Error guardando usuario:', err);
+            Swal.fire('Error', 'No se pudo guardar el usuario.', 'error');
           }
         });
     }
   }
-  idEditando: string | null = null;
-  editarProducto(producto: Producto, index: number) {
-    this.nuevoProducto = { ...producto };
-    this.idEditando = producto._id || null;
+
+  editarUsuario(usuario: Usuario) {
+    this.nuevoUsuario = { ...usuario };
+    this.idEditando = usuario._id || null;
     this.mostrarModal = true;
-    this.proveedoresFiltrados = this.proveedores;
-    this.busquedaProveedor = '';
   }
 
-  eliminarProducto(producto: Producto) {
+  eliminarUsuario(usuario: Usuario) {
     Swal.fire({
       title: '¿Estás seguro?',
-      text: `¿Deseas eliminar el producto "${producto.nombre}"?`,
+      text: `¿Deseas eliminar al usuario "${usuario.nombreUsuario}"?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then(result => {
-      if (result.isConfirmed) {
-        this.http.delete(`http://localhost:3000/api/productos/${producto._id}`)
+      if (result.isConfirmed && usuario._id) {
+        this.usuarioService.eliminarUsuario(usuario._id)
           .subscribe({
             next: () => {
-              Swal.fire('Eliminado', 'El producto ha sido eliminado.', 'success');
-              this.cargarProductos();
+              Swal.fire('Eliminado', 'El usuario ha sido eliminado.', 'success');
+              this.cargarUsuarios();
             },
             error: err => {
-              console.error('Error al eliminar:', err);
-              Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
+              console.error('Error al eliminar usuario:', err);
+              Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
             }
           });
       }

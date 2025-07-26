@@ -1,7 +1,8 @@
 <div class="container mt-4">
-    <h2>Clientes</h2>
-    <button class="btn btn-success mb-3" (click)="abrirModal()">Agregar Cliente</button>
-
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Clientes</h2>
+        <button class="btn btn-success" (click)="abrirModal()"><i class="fas fa-plus"></i>Agregar Nuevo</button>
+    </div>
     <p-table [value]="clientes">
         <ng-template pTemplate="header">
             <tr>
