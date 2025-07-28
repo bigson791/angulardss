@@ -1,0 +1,108 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form #formVenta="ngForm" (ngSubmit)="guardarVenta(formVenta)">
+                <h3 class="text-center mb-4">Registrar Venta</h3>
+
+                <div class="mb-3">
+                    <label>Seleccionar Cliente</label>
+                    <select class="form-select" required (change)="alSeleccionarCliente($event)">
+                        <option disabled selected>-- Selecciona un cliente --</option>
+                        <option *ngFor="let c of clientes" [value]="c._id">
+                            {{ c.nombres }} {{ c.apellidos }}
+                        </option>
+                    </select>
+                </div>
+
+                <div *ngIf="clienteSeleccionado">
+                    <div class="mb-2"><strong>Correo:</strong> {{ clienteSeleccionado.correo }}</div>
+                    <div class="mb-2"><strong>NIT:</strong> {{ clienteSeleccionado.nit }}</div>
+                    <div class="mb-2"><strong>Dirección:</strong> {{ clienteSeleccionado.direccion }}</div>
+                </div>
+
+                <hr>
+
+                <div class="mb-3">
+                    <input class="form-control" type="date" name="fecha" [(ngModel)]="venta.fecha" required>
+                </div>
+                <div class="mb-3">
+                    <label>Origen</label>
+                    <select class="form-select" [(ngModel)]="venta.origen" name="origen" required>
+                        <option value="" disabled selected>Seleccione</option>
+                        <option *ngFor="let fuente of fuentes" [value]="fuente">{{ fuente }}</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Tipo de Pago</label>
+                    <select class="form-select" [(ngModel)]="venta.tipoPago" name="tipoPago"
+                        (change)="actualizarCuotasDisponibles()" required>
+                        <option value="" disabled selected>Seleccione</option>
+                        <option *ngFor="let tipo of tiposPago" [value]="tipo">{{ tipo }}</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Cuotas</label>
+                    <select class="form-select" [(ngModel)]="venta.cuotas" name="cuotas" required>
+                        <option *ngFor="let c of cuotasDisponibles" [value]="c">{{ c }}</option>
+                    </select>
+                </div>
+
+                <hr>
+                <h5> Agregar Producto</h5>
+
+                <div class="mb-3">
+                    <select class="form-select" required (change)="alSeleccionarProducto($event)">
+                        <option disabled selected>-- Selecciona un producto --</option>
+                        <option *ngFor="let p of productos" [value]="p._id">
+                            {{ p.nombre }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <input class="form-control" type="number" placeholder="Cantidad" [(ngModel)]="nuevoDetalle.cantidad"
+                        name="cantidad" required>
+                </div>
+                <div class="mb-3">
+                    <input class="form-control" type="number" placeholder="Precio Unitario"
+                        [(ngModel)]="nuevoDetalle.precioUnitario" name="precioUnitario" required readonly>
+                </div>
+                <button type="button" class="btn btn-primary mb-3" (click)="agregarDetalle()"><i class="fas fa-plus"></i> Agregar Producto</button>
+
+                <p-table [value]="venta.detalles" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>precioUnitario</th>
+                            <th>subtotal</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-venta.detalles let-prod let-i="rowIndex">
+                        <tr>
+                            <td>{{ venta.detalles[i].producto }}</td>
+                            <td>{{ venta.detalles[i].cantidad }}</td>
+                            <td>{{ venta.detalles[i].precioUnitario }}</td>
+                            <td>{{ venta.detalles[i].subtotal }}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" (click)="eliminarDetalle(i)"><i
+                                        class="fas fa-trash-alt"></i> Eliminar</button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <!-- <ul class="list-group mb-3" *ngIf="venta.detalles.length > 0">
+                    <li *ngFor="let d of venta.detalles" class="list-group-item">
+                        {{ d.producto }} - {{ d.cantidad }} x Q{{ d.precioUnitario }} = Q{{ d.cantidad *
+                        d.precioUnitario }}
+                    </li>
+                </ul> -->
+
+                <div class="mb-3"><strong>Total: Q{{ venta.total }}</strong></div>
+                <button class="btn btn-success" type="submit"> <i class="fas fa-floppy-disk"></i> Registrar
+                    Venta</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -16,6 +16,7 @@ interface Cliente {
   correo: string;
   telefono: string;
   totalPedidos?: number;
+  estado?: string;
 
 }
 

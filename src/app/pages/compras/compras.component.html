@@ -1,0 +1,166 @@
+<div class="container mt-4">
+    <form (ngSubmit)="guardarCompra(formCompra)" #formCompra="ngForm" class="p-4 bg-white rounded shadow w-75 mx-auto">
+        <h4 class="mb-3 text-center">Registro de Nueva Compra</h4>
+
+        <!-- Datos Generales -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label>Proveedor</label>
+                <select class="form-select" [(ngModel)]="nuevaCompra.idProveedor" name="proveedor" required
+                    (change)="alSeleccionarProveedor($event)">
+                    <option *ngFor="let prov of proveedores" [value]="prov._id">{{ prov.nombre }}</option>
+                </select>
+            </div>
+            <div *ngIf="proveedorSeleccionado">
+                <div class="mb-2"><strong>Nombre:</strong> {{ proveedorSeleccionado.nombre }}</div>
+                <div class="mb-2"><strong>Correo:</strong> {{ proveedorSeleccionado.correo }}</div>
+                <div class="mb-2"><strong>NIT:</strong> {{ proveedorSeleccionado.nit }}</div>
+                <div class="mb-2"><strong>Dirección:</strong> {{ proveedorSeleccionado.direccion }}</div>
+                <div class="mb-2"><strong>Teléfono:</strong> {{ proveedorSeleccionado.telefono }}</div>
+                <div class="mb-2"><strong>Contacto:</strong> {{ proveedorSeleccionado.contacto }}</div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label>Serie Factura</label>
+                <input class="form-control" placeholder="Serie Factura" [(ngModel)]="nuevaCompra.serieFactura"
+                    name="serieFactura" required>
+            </div>
+            <div class="col-md-4">
+                <label>Numero Factura</label>
+                <input class="form-control" placeholder="Número Factura" [(ngModel)]="nuevaCompra.numeroFactura"
+                    name="numeroFactura" required>
+            </div>
+            <div class="col-md-4">
+                <label>Fecha Factura</label>
+                <input class="form-control" placeholder="Fecha Factura" [(ngModel)]="nuevaCompra.fechaFactura"
+                    type="date" name="fechaFactura" required>
+            </div>
+        </div>
+        <!-- Detalles de Pago -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Pago</label>
+                <select class="form-select" [(ngModel)]="nuevaCompra.pago" name="pago" required
+                    (change)="ajustarDiasCredito()">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="Credito">Crédito</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label>Días de Crédito</label>
+                <select class="form-select" [(ngModel)]="nuevaCompra.diasCredito" name="diasCredito"
+                    [disabled]="!esCredito()" required>
+                    <option *ngFor="let d of diasCredito" [value]="d">{{ d }}</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ISR e Impuesto -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Retención ISR</label>
+                <select class="form-select" [(ngModel)]="nuevaCompra.retencionIsr" name="retencionIsr" required>
+                    <option [value]="0">No soy retenedor</option>
+                    <option [value]="5">Pequeño contribuyente</option>
+                    <option [value]="7">Contribuyente Normal</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label>Impuesto</label>
+                <select class="form-select" [(ngModel)]="nuevaCompra.impuesto" name="impuesto" required>
+                    <option [value]="0">Excento</option>
+                    <option [value]="12">IVA</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tipo y Observaciones -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Tipo de compra</label>
+                <select class="form-select" [(ngModel)]="nuevaCompra.tipoCompra" name="tipoCompra" (change)="bloquearTipoCompra()">
+                    <option value="articulo" [disabled]="tipoCompraBloqueado">Artículo</option>
+                    <option value="servicio">Servicio</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label>Observación</label>
+                <textarea class="form-control" rows="1" [(ngModel)]="nuevaCompra.observacion"
+                    name="observacion"></textarea>
+            </div>
+        </div>
+        <hr>
+        <h5>Detalle de Productos</h5>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <!-- Si es artículo: muestra <select>. Si es servicio: muestra <input> -->
+                <ng-container *ngIf="!esServicio(); else servicioInput">
+                    <select class="form-select" [(ngModel)]="productoSeleccionado.idProducto" name="producto" 
+                        (change)="alSeleccionarProducto($event)">
+                        <option *ngFor="let p of productos" [value]="p._id">{{ p.nombre }}</option>
+                    </select>
+                </ng-container>
+                <ng-template #servicioInput>
+                    <input type="text" class="form-control" [(ngModel)]="productoSeleccionado.nombreProducto"
+                        name="nombreServicio" placeholder="Nombre del servicio"  />
+                </ng-template>
+            </div>
+
+            <div class="col-md-3">
+                <input type="number" class="form-control" placeholder="Precio"
+                    [(ngModel)]="productoSeleccionado.precioCompra" name="precio"  />
+            </div>
+
+            <div class="col-md-3">
+                <input type="number" class="form-control" placeholder="Cantidad"
+                    [(ngModel)]="productoSeleccionado.cantidad" name="cantidad"  />
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-success w-100" type="button" (click)="agregarDetalle()">Agregar</button>
+            </div>
+        </div>
+
+        <p-table [value]="nuevaCompra.detalleCompra" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>precioUnitario</th>
+                    <th>subtotal</th>
+                    <th>Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-nuevaCompra.detalleCompra let-prod let-i="rowIndex">
+                <tr>
+                    <td>{{ nuevaCompra.detalleCompra[i].nombreProducto }}</td>
+                    <td>{{ nuevaCompra.detalleCompra[i].cantidad }}</td>
+                    <td>{{ nuevaCompra.detalleCompra[i].precioCompra }}</td>
+                    <td>{{ nuevaCompra.detalleCompra[i].cantidad * nuevaCompra.detalleCompra[i].precioCompra }}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" (click)="eliminarDetalle(i)"><i
+                                class="fas fa-trash-alt"></i> Eliminar</button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <!-- Lista de Detalles
+        <ul class="list-group mb-3">
+            <li *ngFor="let item of nuevaCompra.detalleCompra; let i = index"
+                class="list-group-item d-flex justify-content-between align-items-center">
+                {{ item.nombreProducto }} - {{ item.precioCompra }} x {{ item.cantidad }} = Q{{ item.precioCompra *
+                item.cantidad | number:'1.2-2' }}
+                <button type="button" class="btn btn-danger btn-sm" (click)="eliminarDetalle(i)">Eliminar</button>
+            </li>
+        </ul> -->
+
+        <div class="text-end">
+            <strong>Total: Q{{ calcularTotalCompra() | number:'1.2-2' }}</strong>
+        </div>
+
+        <div class="text-end mt-3">
+            <button class="btn btn-primary" type="submit">Guardar Compra</button>
+        </div>
+    </form>
+</div>
