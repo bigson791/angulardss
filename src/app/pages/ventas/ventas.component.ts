@@ -42,7 +42,7 @@ export class VentasComponent implements OnInit {
   clientes: Cliente[] = [];
   productos: Producto[] = [];
   tiposPago: string[] = ['Transferencia', 'Depósito', 'Tarjeta', 'Crédito Propio'];
-  fuentes: string[] = ['Facebook', 'Instagram', 'Web', 'Whatsapp'];
+  fuentes: string[] = ['Facebook', 'Instagram', 'Web', 'WhatsApp'];
   cuotasDisponibles: number[] = [];
 
 

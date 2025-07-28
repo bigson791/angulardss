@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { NgChartsModule } from 'ng2-charts';
-import { ChartData, ChartType } from 'chart.js';
+import { ChartData, ChartType, ChartDataset, ChartOptions } from 'chart.js';
 
 interface Venta {
   _id: string;
@@ -37,6 +37,19 @@ export class DashboardComponent implements OnInit {
   canalChartType: ChartType = 'doughnut';
   metodoChartType: ChartType = 'pie';
 
+
+  lineChartData: ChartDataset[] = [];
+  lineChartLabels: string[] = [];
+  lineChartOptions: ChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      }
+    }
+  };
+  lineChartType: ChartType = 'line';
+  lineChartLegend = true;
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
@@ -92,6 +105,25 @@ export class DashboardComponent implements OnInit {
       labels: Object.keys(pagos),
       datasets: [{ data: Object.values(pagos) }]
     };
-  }
 
+    this.http.get<any[]>('http://localhost:3000/api/ventas/resumen-anual')
+      .subscribe(data => {
+        const años = [...new Set(data.map(d => d._id.año))];
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        this.lineChartLabels = meses;
+
+        this.lineChartData = años.map(año => {
+          const dataset = Array(12).fill(0);
+          data.filter(d => d._id.año === año).forEach(d => {
+            dataset[d._id.mes - 1] = d.total;
+          });
+          return {
+            label: año.toString(),
+            data: dataset,
+            fill: false
+          };
+        });
+      });
+  }
 }
+

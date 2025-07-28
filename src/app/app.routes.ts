@@ -27,6 +27,7 @@ export const routes: Routes = [
             { path: 'ventas', loadComponent: () => import('./pages/ventas/ventas.component').then(m => m.VentasComponent) },
             { path: 'compras', loadComponent: () => import('./pages/compras/compras.component').then(m => m.ComprasComponent) },
             { path: 'pagos', loadComponent: () => import('./pages/pagos/pagos.component').then(m => m.PagosComponent) },
+            { path: 'inventarios', loadComponent: () => import('./pages/inventarios/inventarios.component').then(m => m.InventariosComponent)},
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: '**', component: NotFoundComponent }, // Redirige a 404 si no encuentra la ruta
 
